@@ -25,3 +25,5 @@ for solicitud in solicitudes:
 print('\nBITÁCORA')
 for evento in gestor.reporte():
     print('-', evento)
+
+
