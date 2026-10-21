@@ -1,0 +1,88 @@
+@startuml
+skinparam classAttributeIconSize 0
+class Carga {
++tipo
++peso
++temperatura
++__init__(tipo,peso,temperatura)
+}
+class Solicitud {
++codigo
++carga
++origen
++destino
++distancia
++zona
++estado
++robot
++tiempo
++costo
++__init__(codigo,carga,origen,destino,distancia,zona)
+}
+class Robot {
++codigo
+-__bateria
++ubicacion
++capacidad
++velocidad
++consumo
++zonas
++tipos
++tarifa
++carga_actual
++disponible
++__init__(codigo,bateria,ubicacion,capacidad,velocidad,consumo,zonas,tipos,tarifa)
++ver_bateria()
++cambiar_bateria(valor)
++puede_transportar(carga)
++bateria_necesaria(distancia)
++puede_entregar(solicitud)
++calcular_tiempo(distancia)
++calcular_costo(solicitud)
++terminar_entrega(solicitud)
+}
+class RobotRuedas { +calcular_tiempo(distancia) }
+class RobotOrugas { +calcular_tiempo(distancia) }
+class Dron { +calcular_tiempo(distancia) }
+Robot <|-- RobotRuedas
+Robot <|-- RobotOrugas
+Robot <|-- Dron
+class ServicioClima { +condiciones_favorables(ubicacion) }
+class ClimaSimulado {
++favorable
++__init__(favorable)
++condiciones_favorables(ubicacion)
+}
+class Evento {
++descripcion
++__init__(descripcion)
+}
+class GestorFlota {
++robots
++solicitudes
+-__eventos
++servicio_clima
++ubicacion_campus
++__init__(servicio_clima,ubicacion_campus)
++registrar_robot(robot)
++registrar_solicitud(solicitud)
++registrar_evento(descripcion)
++asignar(solicitud)
++finalizar(solicitud,exito)
++mantenimiento(robot)
++reporte()
+}
+GestorFlota o-- "0..*" Robot : registra
+GestorFlota o-- "0..*" Solicitud : gestiona
+GestorFlota *-- "0..*" Evento : crea y conserva
+GestorFlota --> "1" ServicioClima : usa en producción
+GestorFlota ..> ClimaSimulado : alternativa de prueba
+Solicitud --> "1" Carga : contiene
+Solicitud --> "0..1" Robot : asignado
+Robot --> "0..1" Carga : carga_actual
+note right of GestorFlota
+ServicioClima y ClimaSimulado tienen
+el mismo método: sustitución por
+comportamiento (duck typing).
+end note
+@enduml

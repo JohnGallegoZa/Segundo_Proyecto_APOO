@@ -1,0 +1,137 @@
+classDiagram
+    direction TB
+
+    class Ubicacion {
+        -String nombre
+        -float latitud
+        -float longitud
+    }
+
+    class ProveedorClima {
+        <<abstract>>
+        +condiciones_favorables(ubicacion) bool
+    }
+    class ServicioClimaOpenMeteo {
+        -float umbral_viento_kmh
+        -float umbral_lluvia_pct
+        -String url_base
+        -int timeout_seg
+        -String ultimo_error
+        +condiciones_favorables(ubicacion) bool
+        -consultar(ubicacion) dict
+    }
+    class ServicioClimaSimulado {
+        -bool favorable
+        +establecer_favorable(favorable)
+        +condiciones_favorables(ubicacion) bool
+    }
+
+    class Carga {
+        <<abstract>>
+        -String descripcion
+        -float peso_kg
+        +recargo_costo()* float
+        +admite_robot(robot)* bool
+        +nombre_tipo()* String
+    }
+    class Documento
+    class Alimento {
+        -bool requiere_frio
+    }
+    class Fragil
+    class MaterialPeligroso {
+        -int nivel_riesgo
+    }
+
+    class Robot {
+        <<abstract>>
+        -String id_robot
+        -float bateria
+        -String zona_actual
+        -float capacidad_kg
+        -float velocidad_kmh
+        -String estado
+        -Carga carga_actual
+        +es_aereo() bool
+        +es_todoterreno() bool
+        +tiene_refrigeracion() bool
+        +calcular_consumo(distancia_km) float
+        +calcular_tiempo_min(distancia_km) float
+        +calcular_costo(solicitud) float
+        +motivo_rechazo(solicitud) String
+        +puede_transportar(solicitud) bool
+        +reservar(solicitud)
+        +finalizar_entrega(solicitud)
+        +cancelar_entrega()
+        +poner_en_mantenimiento()
+        +terminar_mantenimiento()
+    }
+    class RobotRuedas
+    class RobotOrugas
+    class Dron {
+        +calcular_tiempo_min(distancia_km) float
+        +calcular_costo(solicitud) float
+    }
+
+    class Solicitud {
+        -int id_solicitud
+        -String solicitante
+        -String zona_destino
+        -float distancia_km
+        -String estado
+        +asignar_a(robot)
+        +marcar_pendiente()
+        +marcar_entregada()
+        +marcar_fallida()
+    }
+
+    class Flota {
+        -List~Robot~ robots
+        +registrar_robot(robot)
+        +buscar_por_id(id_robot) Robot
+        +obtener_robots() List
+    }
+
+    class Evento {
+        -datetime fecha
+        -String tipo
+        -String detalle
+    }
+    class Bitacora {
+        -List~Evento~ eventos
+        +registrar(tipo, detalle)
+        +contar(tipo) int
+        +generar_reporte() String
+    }
+
+    class AsignadorEntregas {
+        -Flota flota
+        -ProveedorClima clima
+        -Bitacora bitacora
+        -Ubicacion ubicacion_campus
+        +asignar(solicitud) Robot
+        +completar_entrega(solicitud, exito)
+    }
+
+    Carga <|-- Documento
+    Carga <|-- Alimento
+    Carga <|-- Fragil
+    Carga <|-- MaterialPeligroso
+    Robot <|-- RobotRuedas
+    Robot <|-- RobotOrugas
+    Robot <|-- Dron
+    ProveedorClima <|-- ServicioClimaOpenMeteo
+    ProveedorClima <|-- ServicioClimaSimulado
+
+    Bitacora "1" *-- "0..*" Evento : composición
+    Flota "1" o-- "0..*" Robot : agregación
+    Solicitud "0..*" --> "1" Carga : transporta
+    Solicitud "0..*" --> "0..1" Robot : robot_asignado
+    Robot "1" --> "0..1" Carga : carga_actual
+    AsignadorEntregas "1" --> "1" Flota
+    AsignadorEntregas "1" --> "1" Bitacora
+    AsignadorEntregas "1" --> "1" ProveedorClima : usa la abstracción
+    AsignadorEntregas "1" --> "1" Ubicacion
+    ServicioClimaOpenMeteo ..> Ubicacion
+    Robot ..> Solicitud
+    Carga ..> Robot
