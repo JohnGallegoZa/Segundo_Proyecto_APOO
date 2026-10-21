@@ -27,3 +27,8 @@ for evento in gestor.reporte():
     print('-', evento)
 
 
+
+
+
+
+
